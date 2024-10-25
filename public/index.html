@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>Test</div>
+    <form>
+        <input id="input" type="text">
+        <button id="get">Get</button>
+        <button method="post" id="post">Post</button>
+    </form>
+    <form action="" method="post" id="DYMOLabel">
+        <h2>DYMO Label  Example</h2>
+        <input type=button value="Get DYMO Printers" onClick="GetDYMOPrinters()">
+    </form>
+</body>
+<script>
+    var JobNumber;
+    var Part;
+    var Legacy;
+    var CustPO;
+    var date;
+    var Description;
+    var CustName;
+    var OpenQty;
+    var labelXml;
+    var imageData;
+
+    const baseURL = 'http://localhost:5500/info	';
+    const getBtn = document.getElementById("get");
+    const postBtn = document.getElementById("post");
+    const input = document.getElementById("input");
+
+    function GetDYMOPrinters() {
+        dymo.label.framework.init();
+        dymo.label.framework.checkEnvironment(); // Validate if the environment meets the requirements
+        var printers = dymo.label.framework.getPrinters();
+        if (printers.length == 0)
+            throw "No DYMO printers are installed. Install DYMO printers.";
+        var printerName = "";
+        for (var i = 0; i < printers.length; ++i) {
+            var printer = printers[i];
+            if (printer.printerType == "LabelWriterPrinter") {
+                printerName = printer.name;
+                break;
+            }
+        }
+
+        // var label = DYMO.Label.Framework.Label.Open("MyText.label");
+        // label.SetObjectText("NameTxt", "John Smith");
+
+        // label.print("DYMO LabelWriter");
+    }
+    getBtn.addEventListener("click", getInfo);
+    postBtn.addEventListener("click", postInfo);
+
+    async function dymoStartup(){
+    dymo.renderLabel(labelXml).then(imageData => {
+        // returns imageData as base64 encoded png.
+        //<img src="data:image/png;base64,${imageData}"/>
+        fs.writeFile("out.png", imageData, 'base64', (err) => {
+            if (err)
+              console.log(err);
+            else {
+              console.log("File written successfully\n");
+            }
+          });
+    });
+}
+    async function getInfo(e){
+e.preventDefault();
+const res = await fetch(baseURL, 
+    {
+        method: "GET"
+    })
+    const data = await res.json();
+    labelXml = data.labelXml;
+    console.log(labelXml);
+    imageData = await dymo.label.framework.renderLabel(labelXml, "", "")
+}
+    async function postInfo(e){
+        e.preventDefault();
+        const response = await fetch('/api/users', {
+            headers: {
+    "Content-Type": "application/json",
+  },
+  method: "POST",
+  body: JSON.stringify({ image: imageData }),
+});
+    }
+</script>
+<script>
+//     var checkExist = setInterval(function() {
+//         console.log("One interval");
+//         console.log(labelXml);
+//    if (labelXml !== undefined) {
+// //execute your method here
+//       console.log("Exists!");
+//        //Get label preview image of the label
+//       clearInterval(checkExist);
+//    }
+// }, 1000); 
+</script>
+</html>
