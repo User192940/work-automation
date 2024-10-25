@@ -4,6 +4,7 @@ import { createRequire } from "module";
 import fs, { readFileSync } from "fs";
 const require = createRequire(import.meta.url);
 const Dymo = require('dymojs');
+const cors = require('cors');
 import inquirer from "inquirer";
 import { start } from "repl";
 
@@ -198,19 +199,19 @@ ${date}</String>
 	</ObjectInfo>
 </DieCutLabel>
 `;
-dymo.renderLabel(labelXml).then(imageData => {
-    fs.writeFile("./labels/images/label" + counter + ".png", imageData, "base64", (err) => {
-        if (err) console.log(err);
-        else {
-          console.log("File written successfully\n");
-          counter++;
-        }
-  });
-});
+// dymo.renderLabel(labelXml).then(imageData => {
+//     fs.writeFile("./labels/images/label" + counter + ".png", imageData, "base64", (err) => {
+//         if (err) console.log(err);
+//         else {
+//           console.log("File written successfully\n");
+//           counter++;
+//         }
+//   });
+// });
     data = {
         labelXml: labelXml
     }
-    dymo.getStatus();
+    //dymo.getStatus();
     // dymo.print("DYMO LabelWriter 4XL", labelXml);
     startServer();
 }
